@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Deep Work Log</title>
+  </head>
+  <body>
+    <h1>Logged Deep Work Sessions</h1>
+    <ul>
+      {% for session in sessions %}
+        <li>{{ session.date }} - {{ session.task }} ({{ session.duration }} minutes, Focus: {{ session.focus_level }})</li>
+      {% endfor %}
+    </ul>
+    <hr>
+    <a href="/log">Log a New Session</a>
+
+  </body>
+</html>
