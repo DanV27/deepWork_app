@@ -1,17 +1,36 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Deep Work Log</title>
-  </head>
-  <body>
-    <h1>Logged Deep Work Sessions</h1>
-    <ul>
-      {% for session in sessions %}
-        <li>{{ session.date }} - {{ session.task }} ({{ session.duration }} minutes, Focus: {{ session.focus_level }})</li>
-      {% endfor %}
-    </ul>
-    <hr>
-    <a href="/log">Log a New Session</a>
+{% extends "base.html" %}
 
-  </body>
-</html>
+{% block title %}Sessions • Deep Work Journal{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <h2 class="panel-title">Sessions</h2>
+
+  {% if sessions|length == 0 %}
+    <p class="muted">No sessions yet. Log your first one!</p>
+  {% else %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Task</th>
+            <th class="num">Duration</th>
+            <th class="num">Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sessions %}
+            <tr>
+              <td>{{ s.date }}</td>
+              <td>{{ s.task }}</td>
+              <td class="num">{{ s.duration }}</td>
+              <td class="num">{{ s.focus_level }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

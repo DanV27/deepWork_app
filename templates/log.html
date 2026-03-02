@@ -1,39 +1,79 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Deep Work Log</title>
-  </head>
-  <body>
-    <h1>Log a Deep Work Session</h1>
-    <hr>
+{% extends "base.html" %}
 
-    <h2>Session Stats</h2>
+{% block title %}Log • Deep Work Journal{% endblock %}
 
-    <p>Total sessions: {{ total_sessions }}</p>
-    <p>Total focus time: {{ total_minutes }} minutes</p>
-    <p>Average focus: {{ avg_focus }}</p>
-    <p>Longest session: {{ longest_session }} minutes</p>
+{% block content %}
 
-    <hr>
+<section class="panel">
+  <h2 class="panel-title">Stats</h2>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total sessions</div>
+      <div class="stat-value">{{ total_sessions }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Total focus time</div>
+      <div class="stat-value">{{ total_minutes }} <span class="stat-unit">min</span></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Average focus</div>
+      <div class="stat-value">{{ "%.1f"|format(avg_focus) }} <span class="stat-unit">/10</span></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Longest session</div>
+      <div class="stat-value">{{ longest_session }} <span class="stat-unit">min</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Log a session</h2>
+
+  <form class="form" action="/log" method="post">
+    <label class="field">
+      <span class="field-label">Task</span>
+      <input class="input" type="text" name="task" placeholder="e.g., LeetCode practice" required>
+    </label>
+
+    <div class="form-row">
+      <label class="field">
+        <span class="field-label">Duration (minutes)</span>
+        <input class="input" type="number" name="duration" min="1" placeholder="60" required>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Focus (1–10)</span>
+        <input class="input" type="number" name="focus" min="1" max="10" placeholder="8" required>
+      </label>
+    </div>
+
+    <button class="button" type="submit">Save session</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Last 28 days</h2>
+
+  <div class="heatmap">
+    {% for t in heatmap_tiles %}
+      <div
+        class="heatmap-cell lvl{{ t.level }}"
+        title="{{ t.date_label }} • {{ t.minutes }} min"
+        aria-label="{{ t.date_label }}: {{ t.minutes }} minutes"
+      ></div>
+    {% endfor %}
+  </div>
+
+  <div class="heatmap-legend">
+    <span class="legend-item"><span class="swatch lvl0"></span> 0</span>
+    <span class="legend-item"><span class="swatch lvl1"></span> &lt; 60</span>
+    <span class="legend-item"><span class="swatch lvl2"></span> 60+</span>
+  </div>
+</section>
 
 
-    
-    <form action="/log" method="post">
-      <label for="task">Task Description:</label>
-      <input type="text" id="task" name="task" required>
-      <br><br>
-      <label for="duration">Duration (minutes):</label>
-      <input type="number" id="duration" name="duration" required>
-      
-      <br><br>
-      <label for="focus">Focus Level (1-10):</label>
-      <input type="number" id="focus" name="focus" min="1" max="10" required>
-      <br><br>
-      <button type="submit">Log Session</button>
-
-      
-    </form>
-    <br>
-    <a href="/sessions">View Sessions</a>
-  </body>
-</html>
+{% endblock %}

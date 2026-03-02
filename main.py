@@ -1,6 +1,7 @@
 import json
 import datetime
 from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime, timedelta, date
 
 app = Flask(__name__)
 
@@ -41,12 +42,44 @@ def log():
     data = load_sessions()
     total_sessions, total_minutes, avg_focus, longest_session = compute_stats(data)
 
+    # ---- Heatmap (last 28 days) ----
+    today = date.today()
+    days = [today - timedelta(days=i) for i in range(27, -1, -1)]  # oldest -> newest
+
+    minutes_by_day = {d: 0 for d in days}
+
+    for s in data:
+        try:
+            d = datetime.strptime(s["date"], "%b-%d-%Y %I:%M").date()
+        except Exception:
+            continue
+
+        if d in minutes_by_day:
+            minutes_by_day[d] += int(s.get("duration", 0))
+
+    heatmap_tiles = []
+    for d in days:
+        mins = minutes_by_day[d]
+        if mins == 0:
+            level = 0
+        elif mins < 60:
+            level = 1
+        else:
+            level = 2
+
+        heatmap_tiles.append({
+            "date_label": d.strftime("%b %d"),
+            "minutes": mins,
+            "level": level
+        })
+
     return render_template(
         "log.html",
         total_sessions=total_sessions,
         total_minutes=total_minutes,
         avg_focus=avg_focus,
-        longest_session=longest_session
+        longest_session=longest_session,
+        heatmap_tiles=heatmap_tiles
     )
 
 
