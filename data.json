@@ -1,5 +1,41 @@
 [
   {
+    "date": "Feb-9-2026 04:44",
+    "task": "this",
+    "duration": 100,
+    "focus_level": 1
+  },
+  {
+    "date": "Feb-12-2026 04:44",
+    "task": "this",
+    "duration": 1,
+    "focus_level": 1
+  },
+  {
+    "date": "Feb-18-2026 04:44",
+    "task": "this",
+    "duration": 1,
+    "focus_level": 1
+  },
+  {
+    "date": "Feb-22-2026 04:44",
+    "task": "this",
+    "duration": 1,
+    "focus_level": 1
+  },
+  {
+    "date": "Feb-25-2026 04:44",
+    "task": "this",
+    "duration": 65,
+    "focus_level": 7
+  },
+  {
+    "date": "Feb-27-2026 04:44",
+    "task": "this",
+    "duration": 1,
+    "focus_level": 1
+  },
+  {
     "date": "Feb-28-2026 04:44",
     "task": "this",
     "duration": 1,
@@ -28,5 +64,37 @@
     "task": "This project",
     "duration": 65,
     "focus_level": 10
+  },
+  {
+    "date": "Mar-01-2026 07:45",
+    "task": "hello",
+    "duration": 100,
+    "focus_level": 10
+  },
+  {
+    "date": "Mar-03-2026 06:41",
+    "task": "this",
+    "duration": 120,
+    "focus_level": 10
+  },
+  {
+    "date": "Mar-03-2026 06:43",
+    "task": "this",
+    "duration": 1,
+    "focus_level": 1
+  },
+  {
+    "date": "Mar-03-2026 06:45",
+    "task": "hello",
+    "duration": 1,
+    "focus_level": 1,
+    "journal": "Hello"
+  },
+  {
+    "date": "Mar-03-2026 06:46",
+    "task": "journal",
+    "duration": 20,
+    "focus_level": 8,
+    "journal": "hello"
   }
 ]

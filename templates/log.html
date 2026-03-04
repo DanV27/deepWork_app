@@ -33,7 +33,7 @@
 <section class="panel">
   <h2 class="panel-title">Log a session</h2>
 
-  <form class="form" action="/log" method="post">
+  <form class="form" action="/log" method="post" autocomplete="off">
     <label class="field">
       <span class="field-label">Task</span>
       <input class="input" type="text" name="task" placeholder="e.g., LeetCode practice" required>
@@ -49,6 +49,11 @@
         <span class="field-label">Focus (1–10)</span>
         <input class="input" type="number" name="focus" min="1" max="10" placeholder="8" required>
       </label>
+
+      <label class="field">
+        <span class="field-label">Journal</span>
+        <input class="input" type="text" name="journal" placeholder="e.g., What I learned today or What I need to work on tomorrow....">
+      </label>
     </div>
 
     <button class="button" type="submit">Save session</button>
@@ -56,7 +61,10 @@
 </section>
 
 <section class="panel">
-  <h2 class="panel-title">Last 28 days</h2>
+  <h2 class="panel-title">
+    <span>Focus heatmap</span>
+    <span>Streak: {{ current_streak }}</span>
+  </h2>
 
   <div class="heatmap">
     {% for t in heatmap_tiles %}
@@ -64,6 +72,7 @@
         class="heatmap-cell lvl{{ t.level }}"
         title="{{ t.date_label }} • {{ t.minutes }} min"
         aria-label="{{ t.date_label }}: {{ t.minutes }} minutes"
+        class="heatmap-cell lvl{{ t.level }} {% if t.is_today %}today{% endif %}"
       ></div>
     {% endfor %}
   </div>
@@ -73,7 +82,7 @@
     <span class="legend-item"><span class="swatch lvl1"></span> &lt; 60</span>
     <span class="legend-item"><span class="swatch lvl2"></span> 60+</span>
   </div>
-</section>
+
 
 
 {% endblock %}

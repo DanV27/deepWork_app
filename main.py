@@ -48,6 +48,13 @@ def log():
 
     minutes_by_day = {d: 0 for d in days}
 
+    
+    is_today = {d: d == today for d in days}
+
+    #journal entries are optional
+
+    
+
     for s in data:
         try:
             d = datetime.strptime(s["date"], "%b-%d-%Y %I:%M").date()
@@ -73,23 +80,35 @@ def log():
             "level": level
         })
 
+    #streaks, number of days in a row with at least 1 session
+    current_streak = 0
+    for d in reversed(days):
+        if minutes_by_day[d] > 0:
+            current_streak += 1
+        else:
+            break
+
     return render_template(
         "log.html",
         total_sessions=total_sessions,
         total_minutes=total_minutes,
         avg_focus=avg_focus,
         longest_session=longest_session,
-        heatmap_tiles=heatmap_tiles
+        heatmap_tiles=heatmap_tiles,
+        current_streak=current_streak,
+        is_today=is_today,
+        
     )
 
 
 @app.route("/log", methods=["POST"])
 def log_post():
-    curr_date = datetime.datetime.now().strftime("%b-%d-%Y %I:%M")
+    curr_date = datetime.now().strftime("%b-%d-%Y %I:%M")
 
     task = (request.form.get("task") or "").strip()
     duration = request.form.get("duration")
     focus_level = request.form.get("focus")
+    journal = request.form.get("journal", "").strip()
 
     # Basic validation (simple + safe)
     if not task:
@@ -109,7 +128,8 @@ def log_post():
         "date": curr_date,
         "task": task,
         "duration": duration_int,
-        "focus_level": focus_int
+        "focus_level": focus_int,
+        "journal": journal
     })
     save_sessions(data)
 
