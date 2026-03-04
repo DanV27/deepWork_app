@@ -138,6 +138,12 @@ body{
 }
 .input:focus{border-color: var(--accent);}
 
+textarea {
+  resize: none;
+  height: 140px;
+}
+
+
 .button{
   padding: 12px 14px;
   border: 0;

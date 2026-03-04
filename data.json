@@ -96,5 +96,12 @@
     "duration": 20,
     "focus_level": 8,
     "journal": "hello"
+  },
+  {
+    "date": "Mar-04-2026 08:57",
+    "task": "The Journal box",
+    "duration": 15,
+    "focus_level": 9,
+    "journal": "Nobody distracted me since I am in my home alone. I need to make this box fullsize still tho, other than that I need to start working on XP and level system :)"
   }
 ]
