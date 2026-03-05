@@ -72,10 +72,9 @@
   <div class="heatmap">
     {% for t in heatmap_tiles %}
       <div
-        class="heatmap-cell lvl{{ t.level }}"
+        class="heatmap-cell lvl{{ t.level }} {% if t.is_today %}today{% endif %}"
         title="{{ t.date_label }} • {{ t.minutes }} min"
         aria-label="{{ t.date_label }}: {{ t.minutes }} minutes"
-        class="heatmap-cell lvl{{ t.level }} {% if t.is_today %}today{% endif %}"
       ></div>
     {% endfor %}
   </div>
@@ -85,6 +84,7 @@
     <span class="legend-item"><span class="swatch lvl1"></span> &lt; 60</span>
     <span class="legend-item"><span class="swatch lvl2"></span> 60+</span>
   </div>
+</section>
 
 
 
