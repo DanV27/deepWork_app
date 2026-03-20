@@ -8,6 +8,25 @@
   </head>
 
   <body>
+
+    <!-- Level-up banner (slides down on level-up) -->
+    <div class="levelup-banner" id="levelup-banner">
+      <span id="levelup-text">⬆ LEVEL UP!</span>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="xp-bar-wrap" id="xp-bar-wrap" data-level="{{ g_level }}">
+      <div class="container xp-bar-inner">
+        <span class="xp-level-badge">LVL {{ g_level }}</span>
+        <div class="xp-track">
+          <div class="xp-fill" id="xp-fill" style="width: 0%" data-pct="{{ g_xp_pct }}"></div>
+        </div>
+        <span class="xp-numbers">
+          {{ g_xp_in_level }} <span class="xp-sep">/</span> {{ g_xp_needed }} <span class="xp-unit">XP</span>
+        </span>
+      </div>
+    </div>
+
     <header class="site-header">
       <div class="container header-inner">
         <div class="brand">
@@ -22,6 +41,16 @@
       </div>
     </header>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container container">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <main class="container">
       {% block content %}{% endblock %}
     </main>
@@ -31,5 +60,36 @@
         <small>V3 • Flask + JSON • Built by Daniel</small>
       </div>
     </footer>
+    <script>
+    (function () {
+      // Animate XP fill bar on load
+      var fill = document.getElementById('xp-fill');
+      var pct  = parseFloat(fill.dataset.pct) || 0;
+      setTimeout(function () { fill.style.width = pct + '%'; }, 120);
+
+      // Level-up detection via localStorage
+      var wrap         = document.getElementById('xp-bar-wrap');
+      var currentLevel = parseInt(wrap.dataset.level, 10);
+      var lastLevel    = parseInt(localStorage.getItem('dwj_level') || '0', 10);
+
+      if (lastLevel > 0 && currentLevel > lastLevel) {
+        var banner = document.getElementById('levelup-banner');
+        document.getElementById('levelup-text').textContent =
+          '⬆  LEVEL UP!  —  LVL ' + currentLevel;
+        banner.classList.add('active');
+        wrap.classList.add('levelup-flash');
+
+        // Fade banner out after 2.8s
+        setTimeout(function () { banner.classList.add('fading'); }, 2800);
+        // Clean up after transition
+        setTimeout(function () {
+          banner.classList.remove('active', 'fading');
+          wrap.classList.remove('levelup-flash');
+        }, 3500);
+      }
+
+      localStorage.setItem('dwj_level', currentLevel);
+    })();
+    </script>
   </body>
 </html>

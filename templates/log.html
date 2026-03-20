@@ -30,38 +30,190 @@
   </div>
 </section>
 
-<section class="panel">
+<section class="panel" id="timer-panel">
   <h2 class="panel-title">Log a session</h2>
 
+  <div class="timer-presets">
+    <button class="preset-btn active" data-minutes="25">25 min</button>
+    <button class="preset-btn" data-minutes="45">45 min</button>
+    <button class="preset-btn" data-minutes="60">60 min</button>
+    <button class="preset-btn" data-minutes="custom">Custom</button>
+  </div>
+
+  <div class="timer-custom-row" id="timer-custom-row">
+    <input type="number" id="custom-minutes" min="1" max="300" placeholder="Minutes" class="input timer-custom-input">
+    <button class="button timer-set-btn" id="set-custom-btn">Set</button>
+  </div>
+
+  <div class="timer-display" id="timer-display">25:00</div>
+
+  <div class="timer-controls">
+    <button class="button timer-btn" id="start-btn">Start</button>
+    <button class="button timer-btn timer-btn-secondary" id="reset-btn">Reset</button>
+  </div>
+
+  <div class="timer-done-msg" id="timer-done-msg">
+    ✓ Session complete — fill in the details below to save it
+  </div>
+
+  <div class="log-divider"></div>
+
   <form class="form" action="/log" method="post" autocomplete="off">
+    <input type="hidden" name="duration" id="duration-hidden">
+
     <label class="field">
       <span class="field-label">Task</span>
       <input class="input" type="text" name="task" placeholder="e.g., LeetCode practice" required>
     </label>
 
-    <div class="form-row">
-      <label class="field">
-        <span class="field-label">Duration (minutes)</span>
-        <input class="input" type="number" name="duration" min="1" placeholder="60" required>
-      </label>
+    <label class="field">
+      <span class="field-label">Focus (1–10)</span>
+      <input class="input" type="number" name="focus" min="1" max="10" placeholder="8" required>
+    </label>
 
-      <label class="field">
-        <span class="field-label">Focus (1–10)</span>
-        <input class="input" type="number" name="focus" min="1" max="10" placeholder="8" required>
-      </label>
-
-      <label class="field">
-        <span class="field-label">Journal</span>
-        <textarea class="input" name="journal" 
+    <label class="field">
+      <span class="field-label">Journal</span>
+      <textarea class="input" name="journal"
         placeholder="Reflection: What went well today? What distracted you? What will you improve next session?"></textarea>
+    </label>
 
-        
-      </label>
-    </div>
-
-    <button class="button" type="submit">Save session</button>
+    <button class="button btn-locked" type="submit" id="save-btn" disabled>
+      Run the timer to save a session
+    </button>
   </form>
 </section>
+
+<script>
+(function () {
+  var selectedMinutes  = 25;
+  var totalSeconds     = selectedMinutes * 60;
+  var remainingSeconds = totalSeconds;
+  var interval = null;
+  var running  = false;
+
+  var display      = document.getElementById('timer-display');
+  var startBtn     = document.getElementById('start-btn');
+  var resetBtn     = document.getElementById('reset-btn');
+  var doneMsg      = document.getElementById('timer-done-msg');
+  var presetBtns   = document.querySelectorAll('.preset-btn');
+  var customRow    = document.getElementById('timer-custom-row');
+  var customInput  = document.getElementById('custom-minutes');
+  var setCustomBtn = document.getElementById('set-custom-btn');
+
+  function fmt(s) {
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function render() {
+    display.textContent = fmt(remainingSeconds);
+  }
+
+  function setDuration(mins) {
+    if (running) return;
+    selectedMinutes  = mins;
+    totalSeconds     = mins * 60;
+    remainingSeconds = totalSeconds;
+    doneMsg.classList.remove('visible');
+    display.classList.remove('timer-complete');
+    render();
+  }
+
+  function playDone() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.35, 0.7].forEach(function(delay) {
+        var osc  = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.5);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.6);
+      });
+    } catch(e) {}
+  }
+
+  function onComplete() {
+    clearInterval(interval);
+    running  = false;
+    interval = null;
+    startBtn.textContent = 'Start';
+    display.classList.add('timer-complete');
+    doneMsg.classList.add('visible');
+    playDone();
+
+    document.getElementById('duration-hidden').value = selectedMinutes;
+    var saveBtn = document.getElementById('save-btn');
+    saveBtn.disabled = false;
+    saveBtn.classList.remove('btn-locked');
+    saveBtn.textContent = 'Save session';
+    setTimeout(function() {
+      saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 400);
+  }
+
+  function tick() {
+    remainingSeconds--;
+    render();
+    if (remainingSeconds <= 0) onComplete();
+  }
+
+  startBtn.addEventListener('click', function () {
+    if (running) {
+      clearInterval(interval);
+      interval = null;
+      running  = false;
+      startBtn.textContent = 'Resume';
+    } else {
+      if (remainingSeconds <= 0) return;
+      running  = true;
+      startBtn.textContent = 'Pause';
+      interval = setInterval(tick, 1000);
+    }
+  });
+
+  resetBtn.addEventListener('click', function () {
+    clearInterval(interval);
+    interval = null;
+    running  = false;
+    remainingSeconds = totalSeconds;
+    startBtn.textContent = 'Start';
+    display.classList.remove('timer-complete');
+    doneMsg.classList.remove('visible');
+    document.getElementById('duration-hidden').value = '';
+    var saveBtn = document.getElementById('save-btn');
+    saveBtn.disabled = true;
+    saveBtn.classList.add('btn-locked');
+    saveBtn.textContent = 'Run the timer to save a session';
+    render();
+  });
+
+  presetBtns.forEach(function(btn) {
+    btn.addEventListener('click', function () {
+      presetBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (btn.dataset.minutes === 'custom') {
+        customRow.classList.add('visible');
+      } else {
+        customRow.classList.remove('visible');
+        setDuration(parseInt(btn.dataset.minutes));
+      }
+    });
+  });
+
+  setCustomBtn.addEventListener('click', function () {
+    var v = parseInt(customInput.value);
+    if (v > 0 && v <= 300) {
+      setDuration(v);
+      customRow.classList.remove('visible');
+    }
+  });
+
+  render();
+})();
+</script>
 
 <section class="panel">
   <h2 class="panel-title">
