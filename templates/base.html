@@ -18,6 +18,7 @@
     <div class="xp-bar-wrap" id="xp-bar-wrap" data-level="{{ g_level }}">
       <div class="container xp-bar-inner">
         <span class="xp-level-badge">LVL {{ g_level }}</span>
+        <span class="xp-title">{{ g_level_title }}</span>
         <div class="xp-track">
           <div class="xp-fill" id="xp-fill" style="width: 0%" data-pct="{{ g_xp_pct }}"></div>
         </div>
@@ -37,6 +38,7 @@
         <nav class="nav">
           <a class="nav-link" href="{{ url_for('log') }}">Log</a>
           <a class="nav-link" href="{{ url_for('sessions') }}">Sessions</a>
+          <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
         </nav>
       </div>
     </header>

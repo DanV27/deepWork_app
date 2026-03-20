@@ -4,31 +4,6 @@
 
 {% block content %}
 
-<section class="panel">
-  <h2 class="panel-title">Stats</h2>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Total sessions</div>
-      <div class="stat-value">{{ total_sessions }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Total focus time</div>
-      <div class="stat-value">{{ total_minutes }} <span class="stat-unit">min</span></div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Average focus</div>
-      <div class="stat-value">{{ "%.1f"|format(avg_focus) }} <span class="stat-unit">/10</span></div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Longest session</div>
-      <div class="stat-value">{{ longest_session }} <span class="stat-unit">min</span></div>
-    </div>
-  </div>
-</section>
 
 <section class="panel" id="timer-panel">
   <h2 class="panel-title">Log a session</h2>
@@ -73,7 +48,7 @@
 
     <label class="field">
       <span class="field-label">Journal</span>
-      <textarea class="input" name="journal"
+      <textarea class="input auto-expand" name="journal"
         placeholder="Reflection: What went well today? What distracted you? What will you improve next session?"></textarea>
     </label>
 
@@ -104,8 +79,13 @@
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   }
 
+  var defaultTitle = document.title;
+
   function render() {
     display.textContent = fmt(remainingSeconds);
+    if (running) {
+      document.title = fmt(remainingSeconds) + ' — Deep Work';
+    }
   }
 
   function setDuration(mins) {
@@ -140,6 +120,7 @@
     running  = false;
     interval = null;
     startBtn.textContent = 'Start';
+    document.title = defaultTitle;
     display.classList.add('timer-complete');
     doneMsg.classList.add('visible');
     playDone();
@@ -166,6 +147,7 @@
       interval = null;
       running  = false;
       startBtn.textContent = 'Resume';
+      document.title = defaultTitle;
     } else {
       if (remainingSeconds <= 0) return;
       running  = true;
@@ -180,6 +162,7 @@
     running  = false;
     remainingSeconds = totalSeconds;
     startBtn.textContent = 'Start';
+    document.title = defaultTitle;
     display.classList.remove('timer-complete');
     doneMsg.classList.remove('visible');
     document.getElementById('duration-hidden').value = '';
@@ -212,6 +195,15 @@
   });
 
   render();
+
+  // Auto-expand journal textarea
+  var journal = document.querySelector('textarea.auto-expand');
+  if (journal) {
+    journal.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+  }
 })();
 </script>
 

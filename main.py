@@ -30,6 +30,26 @@ def load_sessions():
 
 # ── XP & Levelling ───────────────────────────────────────────────────────────
 
+LEVEL_TITLES = {
+    1:  "Beginner",
+    10: "Apprentice",
+    20: "Focused",
+    30: "Disciplined",
+    40: "Consistent",
+    50: "Deep Worker",
+    60: "Flow Seeker",
+    70: "Elite",
+    80: "Master",
+    90: "Grand Master",
+    100: "Legend",
+}
+
+def level_title(level):
+    for threshold in sorted(LEVEL_TITLES.keys(), reverse=True):
+        if level >= threshold:
+            return LEVEL_TITLES[threshold]
+    return "Beginner"
+
 def xp_for_level(n):
     """XP required to advance from level n to level n+1."""
     return n * 500
@@ -69,11 +89,13 @@ def inject_level():
     total_xp  = sess_xp + streak_xp
     level, xp_in_level, xp_needed, xp_pct = compute_level_info(total_xp)
     return dict(
-        g_level      = level,
-        g_xp_in_level= int(xp_in_level),
-        g_xp_needed  = int(xp_needed),
-        g_xp_pct     = xp_pct,
-        g_total_xp   = int(total_xp),
+        g_level       = level,
+        g_xp_in_level = int(xp_in_level),
+        g_xp_needed   = int(xp_needed),
+        g_xp_pct      = xp_pct,
+        g_total_xp    = int(total_xp),
+        g_level_title = level_title(level),
+        g_streak      = streak,
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -92,12 +114,10 @@ def index():
 @app.route("/log", methods=["GET"])
 def log():
     sessions = load_sessions()
-    total_sessions, total_minutes, avg_focus, longest_session = compute_stats(sessions)
 
     today = date.today()
     days = [today - timedelta(days=i) for i in range(27, -1, -1)]
     minutes_by_day = {d: 0 for d in days}
-    is_today = {d: d == today for d in days}
 
     for s in sessions:
         d = s.created_at.date()
@@ -130,13 +150,8 @@ def log():
 
     return render_template(
         "log.html",
-        total_sessions=total_sessions,
-        total_minutes=total_minutes,
-        avg_focus=avg_focus,
-        longest_session=longest_session,
         heatmap_tiles=heatmap_tiles,
         current_streak=current_streak,
-        is_today=is_today,
     )
 
 @app.route("/log", methods=["POST"])
@@ -177,6 +192,41 @@ def log_post():
 def sessions():
     sessions = load_sessions()
     return render_template("sessions.html", sessions=sessions)
+
+@app.route("/profile")
+def profile():
+    sessions = load_sessions()
+    streak   = compute_streak(sessions)
+    sess_xp  = sum(s.duration * s.focus for s in sessions)
+    streak_xp = max(0, streak - 1) * 1000
+    total_xp = sess_xp + streak_xp
+    level, xp_in_level, xp_needed, xp_pct = compute_level_info(total_xp)
+
+    total_sessions  = len(sessions)
+    total_minutes   = sum(s.duration for s in sessions)
+    avg_focus       = round(sum(s.focus for s in sessions) / total_sessions, 1) if total_sessions else 0
+    longest_session = max((s.duration for s in sessions), default=0)
+    best_focus      = max((s.focus for s in sessions), default=0)
+    best_xp_session = max(sessions, key=lambda s: s.duration * s.focus) if sessions else None
+
+    return render_template(
+        "profile.html",
+        level=level,
+        xp_in_level=int(xp_in_level),
+        xp_needed=int(xp_needed),
+        xp_pct=xp_pct,
+        total_xp=int(total_xp),
+        sess_xp=int(sess_xp),
+        streak_xp=int(streak_xp),
+        title=level_title(level),
+        streak=streak,
+        total_sessions=total_sessions,
+        total_minutes=total_minutes,
+        avg_focus=avg_focus,
+        longest_session=longest_session,
+        best_focus=best_focus,
+        best_xp_session=best_xp_session,
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

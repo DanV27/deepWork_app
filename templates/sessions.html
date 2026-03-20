@@ -17,22 +17,50 @@
             <th>Task</th>
             <th class="num">Duration</th>
             <th class="num">Focus</th>
-            <th class="num">Journal</th>
+            <th class="num">XP</th>
           </tr>
         </thead>
         <tbody>
           {% for s in sessions %}
-            <tr>
-              <td>{{ s.created_at.strftime("%B %d, %Y %I:%M %p") }}</td>
+            <tr class="session-row {% if s.journal %}has-journal{% endif %}"
+                data-journal="{{ s.journal | e }}"
+                title="{% if s.journal %}Click to read journal{% endif %}">
+              <td>{{ s.created_at.strftime("%b %d, %Y · %I:%M %p") }}</td>
               <td>{{ s.task }}</td>
-              <td class="num">{{ s.duration }}</td>
-              <td class="num">{{ s.focus }}</td>
-              <td>{{ s.journal }}</td>
+              <td class="num">{{ s.duration }} <span class="muted" style="font-size:12px">min</span></td>
+              <td class="num">{{ s.focus }}<span class="muted" style="font-size:12px">/10</span></td>
+              <td class="num xp-cell">{{ s.duration * s.focus }}</td>
             </tr>
+            {% if s.journal %}
+            <tr class="journal-row" id="journal-{{ s.id }}">
+              <td colspan="5">
+                <div class="journal-expand">
+                  <span class="journal-expand-label">Journal</span>
+                  <p class="journal-expand-text">{{ s.journal }}</p>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
           {% endfor %}
         </tbody>
       </table>
     </div>
   {% endif %}
 </section>
+
+<script>
+document.querySelectorAll('.session-row.has-journal').forEach(function (row) {
+  row.style.cursor = 'pointer';
+  row.addEventListener('click', function () {
+    var id = row.querySelector('td:first-child').closest('tr');
+    // find next sibling journal row
+    var next = row.nextElementSibling;
+    if (next && next.classList.contains('journal-row')) {
+      var isOpen = next.classList.toggle('open');
+      row.classList.toggle('row-open', isOpen);
+    }
+  });
+});
+</script>
+
 {% endblock %}

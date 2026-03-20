@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Profile • Deep Work Journal{% endblock %}
+
+{% block content %}
+
+<section class="panel profile-hero">
+  <div class="profile-level-badge">LVL {{ level }}</div>
+  <div class="profile-title">{{ title }}</div>
+  <div class="profile-xp-wrap">
+    <div class="profile-xp-track">
+      <div class="profile-xp-fill" style="width: 0%" data-pct="{{ xp_pct }}"></div>
+    </div>
+    <div class="profile-xp-label">{{ xp_in_level }} / {{ xp_needed }} XP to next level</div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">All-time stats</h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total sessions</div>
+      <div class="stat-value">{{ total_sessions }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total focus time</div>
+      <div class="stat-value">{{ total_minutes }} <span class="stat-unit">min</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg focus score</div>
+      <div class="stat-value">{{ avg_focus }} <span class="stat-unit">/ 10</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Longest session</div>
+      <div class="stat-value">{{ longest_session }} <span class="stat-unit">min</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Best focus score</div>
+      <div class="stat-value">{{ best_focus }} <span class="stat-unit">/ 10</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Current streak</div>
+      <div class="stat-value">{{ streak }} <span class="stat-unit">day{{ 's' if streak != 1 else '' }}</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">XP breakdown</h2>
+  <div class="xp-breakdown">
+    <div class="xp-row">
+      <span class="xp-row-label">Session XP</span>
+      <span class="xp-row-value">{{ sess_xp }}</span>
+    </div>
+    <div class="xp-row">
+      <span class="xp-row-label">Streak bonus XP</span>
+      <span class="xp-row-value xp-streak-bonus">+ {{ streak_xp }}</span>
+    </div>
+    <div class="xp-row xp-row-total">
+      <span class="xp-row-label">Total XP</span>
+      <span class="xp-row-value">{{ total_xp }}</span>
+    </div>
+  </div>
+</section>
+
+{% if best_xp_session %}
+<section class="panel">
+  <h2 class="panel-title">Best session</h2>
+  <div class="best-session">
+    <div class="best-session-meta">
+      <span class="best-session-task">{{ best_xp_session.task }}</span>
+      <span class="best-session-date muted">{{ best_xp_session.created_at.strftime("%B %d, %Y") }}</span>
+    </div>
+    <div class="best-session-stats">
+      <span class="best-stat"><span class="best-stat-val">{{ best_xp_session.duration }}</span> <span class="best-stat-unit">min</span></span>
+      <span class="best-stat-sep">·</span>
+      <span class="best-stat"><span class="best-stat-val">{{ best_xp_session.focus }}</span> <span class="best-stat-unit">/ 10 focus</span></span>
+      <span class="best-stat-sep">·</span>
+      <span class="best-stat xp-earned"><span class="best-stat-val">{{ best_xp_session.duration * best_xp_session.focus }}</span> <span class="best-stat-unit">XP</span></span>
+    </div>
+    {% if best_xp_session.journal %}
+      <div class="best-session-journal">{{ best_xp_session.journal }}</div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<script>
+  var fill = document.querySelector('.profile-xp-fill');
+  setTimeout(function () {
+    fill.style.width = fill.dataset.pct + '%';
+  }, 120);
+</script>
+
+{% endblock %}
